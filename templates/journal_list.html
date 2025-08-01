@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Explore Stories</h1>
+    <p>Discover inspiring journeys from our community</p>
+</div>
+
+<div class="journals-grid">
+    {% for journal in journals %}
+    <article class="journal-card">
+        <div class="journal-header">
+            <div class="author-info">
+                <div class="avatar">U</div>
+                <div>
+                    <h4>{% match journal.display_name %}{% when Some(name) %}{{ name }}{% when None %}{{ journal.username }}{% endmatch %}</h4>
+                    <span class="username">@{{ journal.username }}</span>
+                </div>
+            </div>
+            <time>{% match journal.published_at %}{% when Some(date) %}{{ date.format("%B %d, %Y") }}{% when None %}Draft{% endmatch %}</time>
+        </div>
+        
+        <h3><a href="/journals/{{ journal.id }}">{{ journal.title }}</a></h3>
+        <p class="journal-excerpt">{{ journal.content|truncate(200) }}</p>
+        
+        <div class="journal-actions">
+            <a href="/journals/{{ journal.id }}" class="read-more">Read More</a>
+        </div>
+    </article>
+    {% endfor %}
+    
+    {% if journals.is_empty() %}
+    <div class="empty-state">
+        <i class="fas fa-book-open"></i>
+        <h3>No stories yet</h3>
+        <p>Be the first to share your journey with the community!</p>
+        {% if user.is_some() %}
+        <a href="/journals/new" class="btn btn-primary">Write First Story</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

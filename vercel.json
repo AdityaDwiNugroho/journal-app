@@ -1,0 +1,19 @@
+{
+  "functions": {
+    "src/main.rs": {
+      "runtime": "@vercel/static-build"
+    }
+  },
+  "builds": [
+    {
+      "src": "Cargo.toml",
+      "use": "@vercel/rust"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/src/main.rs"
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <div class="avatar-placeholder">
+                U
+            </div>
+        </div>
+        
+        <div class="profile-info">
+            <h1>{% match profile.user.display_name %}{% when Some(name) %}{{ name }}{% when None %}{{ profile.user.username }}{% endmatch %}</h1>
+            <p class="username">@{{ profile.user.username }}</p>
+            
+            <div class="profile-stats">
+                <div class="stat">
+                    <span class="stat-number">{{ profile.journals_count }}</span>
+                    <span class="stat-label">Stories</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">{{ profile.followers_count }}</span>
+                    <span class="stat-label">Followers</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">{{ profile.following_count }}</span>
+                    <span class="stat-label">Following</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            {% match user %}
+                {% when Some(current_user) %}
+                    {% if current_user.id == profile.user.id %}
+                        <!-- Can't follow yourself -->
+                        <a href="/profile/edit" class="btn btn-secondary">
+                            <i class="fas fa-edit"></i>
+                            Edit Profile
+                        </a>
+                    {% else %}
+                        {% if profile.is_following %}
+                            <form action="/unfollow/{{ profile.user.id }}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-secondary">
+                                    <i class="fas fa-user-minus"></i>
+                                    Unfollow
+                                </button>
+                            </form>
+                        {% else %}
+                            <form action="/follow/{{ profile.user.id }}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-user-plus"></i>
+                                    Follow
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                {% when None %}
+                    <!-- Not logged in -->
+                    <a href="/login" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login to Follow
+                    </a>
+            {% endmatch %}
+        </div>
+        </div>
+    </div>
+    
+    <div class="profile-content">
+        <div class="profile-tabs">
+            <button class="tab-btn active" onclick="showTab('stories')">
+                <i class="fas fa-book"></i>
+                Stories
+            </button>
+            <button class="tab-btn" onclick="showTab('about')">
+                <i class="fas fa-info-circle"></i>
+                About
+            </button>
+        </div>
+        
+        <div id="stories-tab" class="tab-content active">
+            <div class="user-journals">
+                {% if profile.journals.is_empty() %}
+                    <div class="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <h3>No stories yet</h3>
+                        <p>{% match profile.user.display_name %}{% when Some(name) %}{{ name }}{% when None %}{{ profile.user.username }}{% endmatch %} hasn't shared any stories yet.</p>
+                    </div>
+                {% else %}
+                    {% for journal in profile.journals %}
+                        <div class="journal-card">
+                            <h3><a href="/journals/{{ journal.id }}">{{ journal.title }}</a></h3>
+                            <div class="journal-content">
+                                {{ journal.content|truncate(200) }}
+                            </div>
+                            <div class="journal-meta">
+                                <span class="published-date">
+                                    <i class="fas fa-calendar"></i>
+                                    {% match journal.published_at %}
+                                        {% when Some(date) %}{{ date }}
+                                        {% when None %}Draft
+                                    {% endmatch %}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div id="about-tab" class="tab-content">
+            <div class="about-content">
+                <h3>About {% match profile.user.display_name %}{% when Some(name) %}{{ name }}{% when None %}{{ profile.user.username }}{% endmatch %}</h3>
+                {% match profile.user.bio %}
+                    {% when Some(bio) %}
+                        <p>{{ bio }}</p>
+                    {% when None %}
+                        <p>No bio available.</p>
+                {% endmatch %}
+                
+                <div class="profile-details">
+                    <div class="detail-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Joined {{ profile.user.created_at }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab and mark button as active
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.target.classList.add('active');
+}
+</script>
+
+<style>
+.journal-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: box-shadow 0.2s ease;
+}
+
+.journal-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.journal-card h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+}
+
+.journal-card h3 a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.journal-card h3 a:hover {
+    color: var(--accent-color);
+}
+
+.journal-content {
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.journal-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #9ca3af;
+}
+
+.published-date i {
+    margin-right: 0.25rem;
+}
+</style>
+{% endblock %}

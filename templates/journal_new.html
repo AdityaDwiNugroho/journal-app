@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Write Your Story</h1>
+    <p>Share your thoughts, experiences, and ideas with the world</p>
+</div>
+
+<div class="journal-form-container">
+    <form action="/journals/new" method="post" class="journal-form">
+        {% match error %}
+        {% when Some(err) %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ err }}
+        </div>
+        {% when None %}
+        {% endmatch %}
+        
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required placeholder="Enter your story title...">
+        </div>
+        
+        <div class="form-group">
+            <label for="content">Content</label>
+            <div class="editor-toolbar">
+                <button type="button" onclick="formatText('bold')" title="Bold">
+                    <i class="fas fa-bold"></i>
+                </button>
+                <button type="button" onclick="formatText('italic')" title="Italic">
+                    <i class="fas fa-italic"></i>
+                </button>
+                <button type="button" onclick="formatText('underline')" title="Underline">
+                    <i class="fas fa-underline"></i>
+                </button>
+                <button type="button" onclick="formatText('strikeThrough')" title="Strikethrough">
+                    <i class="fas fa-strikethrough"></i>
+                </button>
+                <div class="toolbar-separator"></div>
+                <button type="button" onclick="formatText('insertUnorderedList')" title="Bullet List">
+                    <i class="fas fa-list-ul"></i>
+                </button>
+                <button type="button" onclick="formatText('insertOrderedList')" title="Numbered List">
+                    <i class="fas fa-list-ol"></i>
+                </button>
+                <div class="toolbar-separator"></div>
+                <button type="button" onclick="formatText('justifyLeft')" title="Align Left">
+                    <i class="fas fa-align-left"></i>
+                </button>
+                <button type="button" onclick="formatText('justifyCenter')" title="Align Center">
+                    <i class="fas fa-align-center"></i>
+                </button>
+                <button type="button" onclick="formatText('justifyRight')" title="Align Right">
+                    <i class="fas fa-align-right"></i>
+                </button>
+            </div>
+            <div 
+                id="content-editor" 
+                contenteditable="true" 
+                class="rich-editor"
+                placeholder="Start writing your story..."
+                oninput="updateHiddenField()"
+            ></div>
+            <input type="hidden" id="content" name="content" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="simple-checkbox">
+                <input type="checkbox" name="is_private" id="privacy-checkbox">
+                <span class="checkbox-text">Keep this story private</span>
+            </label>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Save Story
+            </button>
+            <a href="/journals" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function formatText(command) {
+    document.execCommand(command, false, null);
+    updateHiddenField();
+    // Small delay to ensure command is executed before checking state
+    setTimeout(updateToolbarStates, 10);
+}
+
+function updateHiddenField() {
+    const editor = document.getElementById('content-editor');
+    const hiddenField = document.getElementById('content');
+    hiddenField.value = editor.innerHTML;
+}
+
+function updateToolbarStates() {
+    // Update formatting button states
+    const commands = ['bold', 'italic', 'underline', 'strikeThrough'];
+    
+    commands.forEach(command => {
+        const button = document.querySelector(`[onclick*="${command}"]`);
+        if (button) {
+            if (document.queryCommandState(command)) {
+                button.classList.add('active');
+                button.style.fontWeight = 'bold';
+            } else {
+                button.classList.remove('active');
+                button.style.fontWeight = 'normal';
+            }
+        }
+    });
+    
+    // Update alignment buttons
+    const alignCommands = ['justifyLeft', 'justifyCenter', 'justifyRight'];
+    alignCommands.forEach(command => {
+        const button = document.querySelector(`[onclick*="${command}"]`);
+        if (button) {
+            if (document.queryCommandState(command)) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        }
+    });
+}
+
+// Focus on the editor when page loads and set up event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const editor = document.getElementById('content-editor');
+    
+    // Focus the editor
+    editor.focus();
+    
+    // Update toolbar states when selection changes or content is modified
+    editor.addEventListener('keyup', function() {
+        updateHiddenField();
+        setTimeout(updateToolbarStates, 10);
+    });
+    
+    editor.addEventListener('mouseup', function() {
+        setTimeout(updateToolbarStates, 10);
+    });
+    
+    editor.addEventListener('focus', function() {
+        setTimeout(updateToolbarStates, 10);
+    });
+    
+    // Update hidden field when content changes
+    editor.addEventListener('input', updateHiddenField);
+    
+    // Initial toolbar state update
+    setTimeout(updateToolbarStates, 100);
+});
+</script>
+
+<style>
+.editor-toolbar button.active {
+    background-color: #2563eb !important;
+    color: white !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+    transform: translateY(-1px);
+}
+
+.editor-toolbar button:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+}
+
+.editor-toolbar button.active:hover {
+    background-color: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+
+.rich-editor {
+    min-height: 300px;
+    border: 1px solid #d1d5db;
+    border-radius: 0 0 8px 8px;
+    padding: 1rem;
+    font-family: Georgia, serif;
+    line-height: 1.6;
+    outline: none;
+    background: white;
+}
+
+.rich-editor:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.rich-editor:empty:before {
+    content: attr(placeholder);
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.editor-toolbar {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.editor-toolbar button {
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    color: #374151;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.editor-toolbar button:active {
+    transform: translateY(0);
+}
+
+.toolbar-separator {
+    width: 1px;
+    height: 28px;
+    background: #d1d5db;
+    margin: 0 0.5rem;
+    align-self: center;
+}
+
+.simple-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+}
+
+.simple-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #2563eb;
+    cursor: pointer;
+}
+
+.checkbox-text {
+    color: #374151;
+    font-weight: 500;
+}
+</style>
+{% endblock %}

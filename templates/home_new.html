@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <h1>Share Your Journey</h1>
+    <p>A minimalist platform for your thoughts, stories, and ideas.</p>
+    <div class="hero-actions">
+        {% if user.is_some() %}
+        <a href="/journals/new" class="btn btn-primary">Write Your Story</a>
+        <a href="/journals" class="btn btn-secondary">Explore</a>
+        {% else %}
+        <a href="/register" class="btn btn-primary">Join the Community</a>
+        <a href="/login" class="btn btn-secondary">Sign In</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="recent-journals">
+    <h2>Recent Stories</h2>
+    {% for journal in journals %}
+    <article class="journal-card">
+        <div class="journal-header">
+            <div class="author-info">
+                <div class="avatar">{{ journal.display_name.chars().next().unwrap_or('U') }}</div>
+                <div>
+                    <h4>{{ journal.display_name }}</h4>
+                    <span class="username">@{{ journal.username }}</span>
+                </div>
+            </div>
+            <time>{{ journal.published_at.format("%B %d, %Y") }}</time>
+        </div>
+        
+        <h3><a href="/journals/{{ journal.id }}">{{ journal.title }}</a></h3>
+        <p class="journal-excerpt">{{ journal.content|truncate(150) }}</p>
+        
+        <div class="journal-actions">
+            <a href="/journals/{{ journal.id }}" class="read-more">Read More</a>
+        </div>
+    </article>
+    {% endfor %}
+    
+    {% if journals.is_empty() %}
+    <div class="empty-state">
+        <p>No stories yet. Be the first to share your journey!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

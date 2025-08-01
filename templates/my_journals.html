@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}My Journals{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>My Journals</h1>
+    <div class="page-actions">
+        <a href="/journals/new" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Write New Story
+        </a>
+    </div>
+</div>
+
+{% if journals.is_empty() %}
+<div class="empty-state">
+    <div class="empty-state-icon">
+        <i class="fas fa-journal-whills"></i>
+    </div>
+    <h2>No journals yet</h2>
+    <p>Start writing your first story to see it here.</p>
+    <a href="/journals/new" class="btn btn-primary">
+        <i class="fas fa-plus"></i>
+        Write Your First Story
+    </a>
+</div>
+{% else %}
+
+<div class="journal-tabs">
+    <button class="tab-btn active" onclick="showTab('all')">
+        <i class="fas fa-list"></i>
+        All ({{ journals.len() }})
+    </button>
+    <button class="tab-btn" onclick="showTab('published')">
+        <i class="fas fa-globe"></i>
+        Published
+    </button>
+    <button class="tab-btn" onclick="showTab('drafts')">
+        <i class="fas fa-edit"></i>
+        Drafts
+    </button>
+    <button class="tab-btn" onclick="showTab('private')">
+        <i class="fas fa-lock"></i>
+        Private
+    </button>
+</div>
+
+<div class="journals-grid">
+    {% for journal in journals %}
+    <div class="journal-card" data-status="{% if journal.is_published %}published{% else %}draft{% endif %}" data-privacy="{% if journal.is_private %}private{% else %}public{% endif %}">
+        <div class="journal-card-header">
+            <h3 class="journal-title">
+                <a href="/journals/{{ journal.id }}">{{ journal.title }}</a>
+            </h3>
+            <div class="journal-status">
+                {% if journal.is_published %}
+                    <span class="status-badge published">
+                        <i class="fas fa-globe"></i>
+                        Published
+                    </span>
+                {% else %}
+                    <span class="status-badge draft">
+                        <i class="fas fa-edit"></i>
+                        Draft
+                    </span>
+                {% endif %}
+                
+                {% if journal.is_private %}
+                    <span class="status-badge private">
+                        <i class="fas fa-lock"></i>
+                        Private
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="journal-content">
+            <p>{{ journal.content }}</p>
+        </div>
+        
+        <div class="journal-meta">
+            <span class="journal-date">
+                {% if journal.is_published %}
+                    Published
+                {% else %}
+                    Draft - Updated {{ journal.updated_at }}
+                {% endif %}
+            </span>
+        </div>
+        
+        <div class="journal-actions">
+            <a href="/journals/{{ journal.id }}/edit" class="btn btn-secondary btn-sm">
+                <i class="fas fa-edit"></i>
+                Edit
+            </a>
+            
+            {% if journal.is_published %}
+                <form action="/journals/{{ journal.id }}/unpublish" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-outline btn-sm">
+                        <i class="fas fa-eye-slash"></i>
+                        Unpublish
+                    </button>
+                </form>
+            {% else %}
+                <form action="/journals/{{ journal.id }}/publish" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="fas fa-globe"></i>
+                        Publish
+                    </button>
+                </form>
+            {% endif %}
+            
+            <form action="/journals/{{ journal.id }}/delete" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this journal?')">
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash"></i>
+                    Delete
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endif %}
+
+<script>
+function showTab(type) {
+    // Update active tab button
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Show/hide journal cards
+    const cards = document.querySelectorAll('.journal-card');
+    cards.forEach(card => {
+        const status = card.dataset.status;
+        const privacy = card.dataset.privacy;
+        
+        let shouldShow = false;
+        
+        switch(type) {
+            case 'all':
+                shouldShow = true;
+                break;
+            case 'published':
+                shouldShow = status === 'published';
+                break;
+            case 'drafts':
+                shouldShow = status === 'draft';
+                break;
+            case 'private':
+                shouldShow = privacy === 'private';
+                break;
+        }
+        
+        card.style.display = shouldShow ? 'block' : 'none';
+    });
+}
+</script>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.page-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.journal-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1rem;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 0.75rem 1rem;
+    color: #6b7280;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.tab-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.tab-btn.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.journals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.journal-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.journal-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.journal-card-header {
+    margin-bottom: 1rem;
+}
+
+.journal-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.journal-title a {
+    color: #1f2937;
+    text-decoration: none;
+}
+
+.journal-title a:hover {
+    color: #3b82f6;
+}
+
+.journal-status {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-badge.published {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-badge.draft {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-badge.private {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.journal-content {
+    margin-bottom: 1rem;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.journal-meta {
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #9ca3af;
+}
+
+.journal-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.btn-success {
+    background: #10b981;
+    color: white;
+    border: 1px solid #10b981;
+}
+
+.btn-success:hover {
+    background: #059669;
+    border-color: #059669;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+}
+
+.btn-outline:hover {
+    background: #f9fafb;
+    color: #374151;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+    border: 1px solid #ef4444;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: #d1d5db;
+}
+
+.empty-state h2 {
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.empty-state p {
+    margin-bottom: 2rem;
+}
+</style>
+{% endblock %}

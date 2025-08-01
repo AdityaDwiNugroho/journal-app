@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article class="journal-detail">
+    <header class="journal-detail-header">
+        <div class="author-info">
+            <div class="avatar large">{{ journal.display_name.chars().next().unwrap_or('U') }}</div>
+            <div class="author-details">
+                <h2>{{ journal.display_name }}</h2>
+                <a href="/profile/{{ journal.username }}" class="username">@{{ journal.username }}</a>
+                <time class="publish-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ journal.published_at.format("%B %d, %Y at %I:%M %p") }}
+                </time>
+            </div>
+        </div>
+        
+        {% if journal.is_private %}
+        <div class="privacy-badge">
+            <i class="fas fa-lock"></i>
+            Private
+        </div>
+        {% endif %}
+    </header>
+    
+    <div class="journal-content">
+        <h1 class="journal-title">{{ journal.title }}</h1>
+        <div class="journal-body">
+            {{ journal.content|safe }}
+        </div>
+    </div>
+    
+    <footer class="journal-detail-footer">
+        <div class="journal-actions">
+            <button class="action-btn" onclick="shareStory()">
+                <i class="fas fa-share"></i>
+                Share
+            </button>
+            <button class="action-btn" onclick="copyLink()">
+                <i class="fas fa-link"></i>
+                Copy Link
+            </button>
+        </div>
+        
+        <div class="journal-meta">
+            {% if journal.is_published == false %}
+            <span class="status-badge draft">
+                <i class="fas fa-edit"></i>
+                Draft
+            </span>
+            {% endif %}
+        </div>
+    </footer>
+</article>
+
+<div class="navigation-actions">
+    <a href="/journals" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i>
+        Back to Stories
+    </a>
+</div>
+
+<script>
+function shareStory() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ journal.title }}',
+            text: 'Check out this story by {{ journal.display_name }}',
+            url: window.location.href
+        });
+    } else {
+        copyLink();
+    }
+}
+
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        // You could show a toast notification here
+        alert('Link copied to clipboard!');
+    });
+}
+</script>
+{% endblock %}

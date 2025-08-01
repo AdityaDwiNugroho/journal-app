@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title }}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">Journal</a>
+            <div class="nav-links">
+                <a href="/journals">Explore</a>
+                {% match user %}
+                {% when Some(current_user) %}
+                    <a href="/journals/new">Write</a>
+                    <a href="/journals/my">My Journals</a>
+                    <div class="user-menu">
+                        <span class="username">{{ current_user.username }}</span>
+                        <div class="user-dropdown">
+                            <a href="/profile/{{ current_user.username }}">
+                                <i class="fas fa-user"></i>
+                                Profile
+                            </a>
+                            <form action="/logout" method="post" style="display: inline;">
+                                <button type="submit" class="btn-link">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% when None %}
+                    <a href="/login">Login</a>
+                    <a href="/register">Register</a>
+                {% endmatch %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

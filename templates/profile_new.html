@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {% if let Some(profile_image) = profile.user.profile_image %}
+            <img src="{{ profile_image }}" alt="{{ profile.user.display_name }}" class="avatar-image">
+            {% else %}
+            <div class="avatar-placeholder">
+                {{ profile.user.display_name.chars().next().unwrap_or('U') }}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="profile-info">
+            <h1>{{ profile.user.display_name }}</h1>
+            <p class="username">@{{ profile.user.username }}</p>
+            {% match profile.user.bio %}
+            {% when Some(bio) %}
+            <p class="bio">{{ bio }}</p>
+            {% when None %}
+            {% endmatch %}
+            
+            <div class="profile-stats">
+                <div class="stat">
+                    <span class="stat-number">{{ profile.journals_count }}</span>
+                    <span class="stat-label">Stories</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">{{ profile.followers_count }}</span>
+                    <span class="stat-label">Followers</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">{{ profile.following_count }}</span>
+                    <span class="stat-label">Following</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            {% match user %}
+            {% when Some(current_user) %}
+                {% if current_user.id == profile.user.id %}
+                <a href="/profile/edit" class="btn btn-secondary">
+                    <i class="fas fa-edit"></i>
+                    Edit Profile
+                </a>
+                {% else %}
+                <button class="btn btn-primary" onclick="toggleFollow()">
+                    <i class="fas fa-user-plus"></i>
+                    {% if profile.is_following %}Unfollow{% else %}Follow{% endif %}
+                </button>
+                {% endif %}
+            {% when None %}
+            {% endmatch %}
+        </div>
+    </div>
+    
+    <div class="profile-content">
+        <div class="profile-tabs">
+            <button class="tab-btn active" onclick="showTab('stories')">
+                <i class="fas fa-book"></i>
+                Stories
+            </button>
+            <button class="tab-btn" onclick="showTab('about')">
+                <i class="fas fa-info-circle"></i>
+                About
+            </button>
+        </div>
+        
+        <div id="stories-tab" class="tab-content active">
+            <div class="user-journals">
+                <!-- This would be populated with user's journals -->
+                <div class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    <h3>No stories yet</h3>
+                    <p>{{ profile.user.display_name }} hasn't shared any stories yet.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="about-tab" class="tab-content">
+            <div class="about-content">
+                <h3>About {{ profile.user.display_name }}</h3>
+                {% match profile.user.bio %}
+                {% when Some(bio) %}
+                <p>{{ bio }}</p>
+                {% when None %}
+                <p>No bio available.</p>
+                {% endmatch %}
+                
+                <div class="profile-details">
+                    <div class="detail-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Joined {{ profile.user.created_at.format("%B %Y") }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab and mark button as active
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.target.classList.add('active');
+}
+
+function toggleFollow() {
+    // This would make an AJAX request to follow/unfollow
+    console.log('Toggle follow functionality would go here');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Write Your Story</h1>
+    <p>Share your thoughts, experiences, and ideas with the world</p>
+</div>
+
+<div class="journal-form-container">
+    <form action="/journals" method="post" class="journal-form">
+        {% if let Some(error) = error %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required placeholder="Enter your story title...">
+        </div>
+        
+        <div class="form-group">
+            <label for="content">Content</label>
+            <div class="editor-toolbar">
+                <button type="button" onclick="formatText('bold')" title="Bold">
+                    <i class="fas fa-bold"></i>
+                </button>
+                <button type="button" onclick="formatText('italic')" title="Italic">
+                    <i class="fas fa-italic"></i>
+                </button>
+                <button type="button" onclick="formatText('underline')" title="Underline">
+                    <i class="fas fa-underline"></i>
+                </button>
+                <button type="button" onclick="formatText('strikeThrough')" title="Strikethrough">
+                    <i class="fas fa-strikethrough"></i>
+                </button>
+                <div class="toolbar-separator"></div>
+                <button type="button" onclick="formatText('insertUnorderedList')" title="Bullet List">
+                    <i class="fas fa-list-ul"></i>
+                </button>
+                <button type="button" onclick="formatText('insertOrderedList')" title="Numbered List">
+                    <i class="fas fa-list-ol"></i>
+                </button>
+                <div class="toolbar-separator"></div>
+                <button type="button" onclick="formatText('justifyLeft')" title="Align Left">
+                    <i class="fas fa-align-left"></i>
+                </button>
+                <button type="button" onclick="formatText('justifyCenter')" title="Align Center">
+                    <i class="fas fa-align-center"></i>
+                </button>
+                <button type="button" onclick="formatText('justifyRight')" title="Align Right">
+                    <i class="fas fa-align-right"></i>
+                </button>
+            </div>
+            <div 
+                id="content-editor" 
+                contenteditable="true" 
+                class="rich-editor"
+                placeholder="Start writing your story..."
+                oninput="updateHiddenField()"
+            ></div>
+            <input type="hidden" id="content" name="content" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="is_private">
+                <span class="checkmark"></span>
+                Keep this story private
+            </label>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Save Story
+            </button>
+            <a href="/journals" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function formatText(command) {
+    document.execCommand(command, false, null);
+    updateHiddenField();
+}
+
+function updateHiddenField() {
+    const editor = document.getElementById('content-editor');
+    const hiddenField = document.getElementById('content');
+    hiddenField.value = editor.innerHTML;
+}
+
+// Focus on the editor when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('content-editor').focus();
+});
+</script>
+{% endblock %}
