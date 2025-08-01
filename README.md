@@ -27,6 +27,11 @@
 # Clone and run
 git clone https://github.com/AdityaDwiNugroho/journal-app.git
 cd journal-app
+
+# Setup environment
+cp .env.example .env
+# Edit .env with your database settings
+
 cargo run
 ```
 
