@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Setting up Journal App in Codespace..."
+echo "Setting up Journal App in Codespace..."
 
 # Check if we have production database URL from secrets
 if [ -n "$DATABASE_URL" ]; then
