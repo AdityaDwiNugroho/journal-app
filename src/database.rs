@@ -89,6 +89,6 @@ pub async fn run_migrations(_pool: &PgPool) -> Result<()> {
     sqlx::query("CREATE TRIGGER update_journals_updated_at BEFORE UPDATE ON journals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()")
         .execute(_pool).await?;
     
-    println!("✅ Database tables created successfully");
+    println!("Database tables created successfully");
     Ok(())
 }

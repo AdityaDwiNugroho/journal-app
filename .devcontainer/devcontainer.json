@@ -1,0 +1,23 @@
+{
+  "name": "Journal App - Rust Development",
+  "image": "mcr.microsoft.com/devcontainers/rust:1-1-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "vadimcn.vscode-lldb",
+        "serayuzgur.crates",
+        "tamasfe.even-better-toml"
+      ]
+    }
+  },
+  "forwardPorts": [3000],
+  "postCreateCommand": "cargo build",
+  "remoteUser": "vscode"
+}

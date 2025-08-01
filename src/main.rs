@@ -31,15 +31,15 @@ async fn main() -> anyhow::Result<()> {
     
     let pool = match database::create_pool(&database_url).await {
         Ok(pool) => {
-            println!("✅ Database connected successfully");
+            println!("Database connected successfully");
             // Run migrations
             if let Err(e) = database::run_migrations(&pool).await {
-                println!("⚠️  Migration skipped: {}", e);
+                println!("Migration skipped: {}", e);
             }
             pool
         }
         Err(e) => {
-            println!("⚠️  Database connection failed: {}", e);
+            println!("Database connection failed: {}", e);
             println!("   Running in demo mode without database");
             // Return a fake pool - we'll handle this in handlers
             return Err(anyhow::anyhow!("Database not available. Please set up PostgreSQL and update your .env file."));

@@ -12,6 +12,13 @@
 
 ## Quick Start
 
+**GitHub Codespaces (Recommended)**
+1. Click the "Code" button → "Codespaces" → "Create codespace"
+2. Run setup: `chmod +x setup-codespace.sh && ./setup-codespace.sh`
+3. Start app: `cargo run`
+4. Access via forwarded port 3000
+
+**Local Development**
 ```bash
 # Clone and run
 git clone https://github.com/AdityaDwiNugroho/journal-app.git
