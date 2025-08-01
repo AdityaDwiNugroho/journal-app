@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: journal-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: journal-app-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+
+databases:
+  - name: journal-app-db
+    databaseName: journal_app
+    user: journal_user
+    plan: free
