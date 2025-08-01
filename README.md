@@ -13,10 +13,14 @@
 ## Quick Start
 
 **GitHub Codespaces (Recommended)**
-1. Click the "Code" button → "Codespaces" → "Create codespace"
-2. Run setup: `chmod +x setup-codespace.sh && ./setup-codespace.sh`
-3. Start app: `cargo run`
-4. Access via forwarded port 3000
+1. **Optional: Set up production database**
+   - Create free database at [neon.tech](https://neon.tech)
+   - Go to repo **Settings** → **Secrets** → **Codespaces**
+   - Add `DATABASE_URL` and `JWT_SECRET` secrets
+2. Click "Code" → "Codespaces" → "Create codespace"
+3. Run setup: `chmod +x setup-codespace.sh && ./setup-codespace.sh`
+4. Start app: `cargo run`
+5. Access via forwarded port 3000
 
 **Local Development**
 ```bash
