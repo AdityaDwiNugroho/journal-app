@@ -11,6 +11,9 @@ categories = ["web-programming", "web-programming::http-server"]
 readme = "README.md"
 homepage = "https://github.com/AdityaDwiNugroho/journal-app"
 
+[funding]
+url = "https://trakteer.id/adityadwinugroho"
+
 [dependencies]
 # Web framework
 axum = "0.7"
